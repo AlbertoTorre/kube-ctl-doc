@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-nginx-yml
+spec:
+  containers:
+    - name: cnt-nginx-yml
+      image: nginx
+      ports:
+        - containerPort: 80

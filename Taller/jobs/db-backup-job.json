@@ -1,0 +1,26 @@
+{
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+        "name": "db-backup-job",
+        "namespace": "t1-kube"
+    },
+    "spec": {
+        "template": {
+            "spec": {
+                "containers": [
+                    {
+                        "name": "backup",
+                        "image": "busybox",
+                        "args": [
+                            "/bin/sh",
+                            "-c",
+                            "echo [$(date)] Realizando respaldo DB..."
+                        ]
+                    }
+                ],
+                "restartPolicy": "OnFailure"
+            }
+        }
+    }
+}

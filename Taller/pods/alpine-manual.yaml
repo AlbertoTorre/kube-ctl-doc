@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-alpine-yml
+  namespace: t1-kube 
+spec:
+  containers:
+    - name: cnt-alpine-yml
+      image: alpine
+      command: ["sh", "-c", "while true; do echo hello; sleep 5; done"]

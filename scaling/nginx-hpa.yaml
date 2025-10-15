@@ -1,0 +1,78 @@
+# Este manifiesto incluye:
+# 1. Un Deployment con dos contenedores en el mismo pod: NGINX y stress-ng
+# 2. El contenedor stress-ng no ejecuta carga de inmediato
+# 3. Un Service ClusterIP para exponer NGINX
+# 4. Un HPA basado en uso de CPU del pod
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-stress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-stress
+  template:
+    metadata:
+      labels:
+        app: nginx-stress
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+          limits:
+            cpu: "200m"
+
+      - name: stress-ng
+        image: alpine
+        command: ["sh"]
+        tty: true
+        stdin: true
+        resources:
+          requests:
+            cpu: "100m"
+          limits:
+            cpu: "200m"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx-stress
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-stress
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50

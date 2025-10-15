@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: readiness-demo
+spec:
+  containers:
+  - name: app
+    image: python:3.9-slim
+    ports:
+    - containerPort: 8080
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        pip install flask && \
+        printf "from flask import Flask\nimport os\n\napp = Flask(__name__)\n\n@app.route('/healthz')\ndef healthz():\n    return 'alive', 200\n\n@app.route('/ready')\ndef ready():\n    if os.path.exists('/tmp/ready'):\n        return 'ready', 200\n    else:\n        return 'not ready', 503\n\napp.run(host='0.0.0.0', port=8080)\n" > /app.py && \
+        touch /tmp/ready && \
+        python3 /app.py
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 10
+      periodSeconds: 5
