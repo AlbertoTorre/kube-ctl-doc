@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-command-pod
+spec:
+  containers:
+  - name: app
+    image: busybox
+    command: ["notacommand"]
